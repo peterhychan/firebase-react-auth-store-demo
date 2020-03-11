@@ -1,26 +1,43 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import { db, auth } from "./services/firebase";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+  state = {
+    users: null
+  };
+
+  componentDidMount() {
+    db.collection("users")
+      .get()
+      .then(snapshot => {
+        const users = [];
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          users.push(data);
+          this.setState({ users });
+        });
+      })
+      .catch(err => console.log(err));
+  }
+
+  render() {
+    return (
+      <div className="App">
+        <h1>Users</h1>
+        {this.state.users &&
+          this.state.users.map(user => {
+            return (
+              <div key={user.name}>
+                <p>{user.name}</p>
+                <p>{user.job}</p>
+                <p>{user.email}</p>
+                <hr />
+              </div>
+            );
+          })}
+      </div>
+    );
+  }
 }
 
 export default App;
